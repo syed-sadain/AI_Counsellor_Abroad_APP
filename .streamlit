@@ -1,0 +1,8 @@
+GROQ_API_KEY = "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"
+
+[db]
+host = "127.0.0.1"
+port = 5432
+dbname = "postgres"
+user = "postgres"
+password = "Pass@123"

@@ -79,20 +79,30 @@ GROQ_API_KEY = st.secrets.get("GROQ_API_KEY") or os.getenv("GROQ_API_KEY")
 client = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
 
 # ────────────── Database connection ──────────────
+# ────────────── Database connection (safe, no connection refused) ──────────────
 def get_db_connection():
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+    import streamlit as st
+
+    # Use 127.0.0.1 explicitly to avoid localhost resolution issues
+    db_config = {
+        "host": "127.0.0.1",               # Force IPv4
+        "port": 5432,                      # Default PostgreSQL port
+        "dbname": st.secrets["db"]["dbname"],
+        "user": st.secrets["db"]["user"],
+        "password": st.secrets["db"]["password"],
+        "connect_timeout": 5,              # Quick fail if server not reachable
+        "cursor_factory": RealDictCursor
+    }
+
     try:
-        conn = psycopg2.connect(
-            host=st.secrets["db"]["host"],
-            port=st.secrets["db"].get("port", 5432),
-            dbname=st.secrets["db"]["dbname"],
-            user=st.secrets["db"]["user"],
-            password=st.secrets["db"]["password"],
-            cursor_factory=RealDictCursor
-        )
+        conn = psycopg2.connect(**db_config)
         return conn
-    except Exception as e:
-        st.error(f"PostgreSQL connection failed: {str(e)}")
+    except psycopg2.OperationalError as e:
+        st.error(f"⚠️ PostgreSQL connection failed: {e}\n\nMake sure your server is running and host is 127.0.0.1.")
         st.stop()
+
 
 # ────────────── Initialize tables ──────────────
 def init_db():

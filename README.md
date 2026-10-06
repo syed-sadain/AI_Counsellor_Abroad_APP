@@ -1,4 +1,4 @@
-# 🧠✈️ AI Counsellor Abroad
+# 🎓 AI Counsellor Abroad
 
 ### AI-Powered Study Abroad Guidance & University Shortlisting Platform
 
